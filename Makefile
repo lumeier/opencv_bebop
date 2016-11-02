@@ -3,30 +3,32 @@ PWD	= $(shell pwd)
 
 
 all:
-	git submodule update --init
-	cd opencv && git reset --hard && git apply < ../fix_compiler_crash.patch && cd ..
+	git submodule init
+	git submodule update
+	#cd opencv && git am --signoff < ../fix_compiler_crash.patch && cd ..
 	make cc
 	make build
 	./link.py > install/opencv.xml
-	cd opencv && git reset --hard
-
+	git submodule update
 
 build:
 	make -C ./build
 	make -C ./build install
 
-
+#-DCMAKE_INSTALL_PREFIX=$(PWD)/install \
 
 cc:
 	mkdir build -p;
 	cmake -H./opencv -B./build -DCMAKE_TOOLCHAIN_FILE=$(PWD)/bebop.toolchain.cmake \
+		 -DCMAKE_C_COMPILER=/usr/bin/arm-linux-gnueabihf-gcc \
+		 -DCMAKE_CXX_COMPILER=/usr/bin/arm-linux-gnueabihf-g++\
 		 -DCMAKE_INSTALL_PREFIX=$(PWD)/install \
 		 -DBUILD_CUDA_STUBS=FALSE \
 		 -DBUILD_DOCS=FALSE  \
 		 -DBUILD_EXAMPLES=FALSE \
 		 -DBUILD_FAT_JAVA_LIB=TRUE \
 		 -DBUILD_JASPER=FALSE \
-		 -DBUILD_JPEG=FALSE \
+		 -DBUILD_JPEG=TRUE \
 		 -DBUILD_OPENEXR=FALSE \
 		 -DBUILD_PACKAGE=FALSE \
 		 -DBUILD_PERF_TESTS=FALSE \
@@ -38,26 +40,27 @@ cc:
 		 -DBUILD_WITH_DEBUG_INFO=FALSE \
 		 -DBUILD_WITH_DYNAMIC_IPP=FALSE \
 		 -DBUILD_ZLIB=FALSE \
-		 -DBUILD_opencv_apps=FALSE \
-		 -DBUILD_opencv_calib3d=FALSE \
+		 -DBUILD_opencv_apps=TRUE \
+		 -DBUILD_opencv_calib3d=TRUE \
 		 -DBUILD_opencv_core=TRUE \
-		 -DBUILD_opencv_features2d=FALSE \
-		 -DBUILD_opencv_flann=FALSE \
-		 -DBUILD_opencv_highgui=FALSE \
+		 -DBUILD_opencv_features2d=TRUE \
+		 -DBUILD_opencv_flann=TRUE \
+		 -DBUILD_opencv_highgui=TRUE \
 		 -DBUILD_opencv_imgcodecs=TRUE \
 		 -DBUiLD_opencv_imgproc=TRUE \
-		 -DBUILD_opencv_java=FALSE \
-		 -DBUILD_opencv_ml=FALSE \
+		 -DBUILD_opencv_java=TRUE \
+		 -DBUILD_opencv_ml=TRUE \
 		 -DBUILD_opencv_objdetect=TRUE \
-		 -DBUILD_opencv_photo=FALSE \
-		 -DBUILD_opencv_shape=FALSE \
-		 -DBUILD_opencv_stitching=FALSE \
-		 -DBUILD_opencv_superres=FALSE \
-		 -DBUILD_opencv_ts=FALSE \
+		 -DBUILD_opencv_photo=TRUE \
+		 -DBUILD_opencv_shape=TRUE \
+		 -DBUILD_opencv_stitching=TRUE \
+		 -DBUILD_opencv_superres=TRUE \
+		 -DBUILD_opencv_ts=TRUE \
 		 -DBUILD_opencv_video=TRUE \
-		 -DBUILD_opencv_videoio=FALSE \
-		 -DBUILD_opencv_videostab=FALSE \
+		 -DBUILD_opencv_videoio=TRUE \
+		 -DBUILD_opencv_videostab=TRUE \
 		 -DBUILD_opencv_world=FALSE \
+		 -DBUILD_TBB=ON \
 		 -DCUDA_BUILD_CUBIN=FALSE \
 		 -DCUDA_BUILD_EMULATION=FALSE \
 		 -DCUDA_SEPARABLE_COMPILATION=FALSE \
@@ -81,6 +84,8 @@ cc:
 		 -DENABLE_SSE41=FALSE \
 		 -DENABLE_SSE42=FALSE \
 		 -DENABLE_SSSE3=FALSE \
+		 -DENABLE_VFPV3=ON \
+		 -DENABLE_NEON=ON \
 		 -DINSTALL_CREATE_DISTRIB=FALSE \
 		 -DINSTALL_C_EXAMPLES=FALSE \
 		 -DINSTALL_PYTHON_EXAMPLES=FALSE \
@@ -92,7 +97,7 @@ cc:
 		 -DWITH_CUDA=FALSE \
 		 -DWITH_CUFFT=FALSE \
 		 -DWITH_EIGEN=FALSE \
-		 -DWITH_FFMPEG=FALSE \
+		 -DWITH_FFMPEG=TRUE \
 		 -DWITH_GDAL=FALSE \
 		 -DWITH_GIGEAPI=FALSE \
 		 -DWITH_GPHOTO2=FALSE \
@@ -120,7 +125,7 @@ cc:
 		 -DWITH_PTHREADS_PF=FALSE \
 		 -DWITH_PVAPI=FALSE \
 		 -DWITH_QT=FALSE \
-		 -DWITH_TBB=FALSE \
+		 -DWITH_TBB=TRUE \
 		 -DWITH_TIFF=FALSE \
 		 -DWITH_UNICAP=FALSE \
 		 -DWITH_V4L=TRUE \
@@ -129,7 +134,8 @@ cc:
 		 -DWITH_VTK=FALSE \
 		 -DWITH_WEBP=FALSE \
 		 -DWITH_XIMEA=FALSE \
-		 -DWITH_XINE=FALSE
+		 -DWITH_XINE=FALSE 
+
 
 
 
@@ -140,7 +146,6 @@ patch:
 
 clean:
 	rm -rf ./build
-	rm -rf ./install
 	rm -rf *~
 
 .PHONY: build cc clean
